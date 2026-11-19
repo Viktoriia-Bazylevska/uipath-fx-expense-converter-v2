@@ -6,7 +6,7 @@
 
 ## 1. Goal
 
-Convert the lines of an expense claim to one target currency (default EUR), using ECB reference rates from the public Frankfurter API. The rate lookup is a reusable component (FX.Rates library) that other processes can install.
+Convert the lines of an expense claim to one target currency (default EUR), using ECB reference rates from the public Frankfurter API. The rate lookup is a reusable component (a library, e.g. FX.Rates; the package name is chosen at export) that other processes can install.
 
 ## 2. Platform
 
@@ -26,14 +26,14 @@ Convert the lines of an expense claim to one target currency (default EUR), usin
 | --- | --- | --- | --- |
 | `GetExchangeRate.xaml` | FX.Rates | Low-code workflow | One rate lookup: validation, HTTP Request, JSON parsing, retries, logging. Never throws |
 | `Main.xaml` | Process | Low-code workflow, **entry point** | Holds run settings as In arguments with default values; invokes `ConvertExpenseClaim.cs` |
-| `ConvertExpenseClaim.cs` | Process | C# coded workflow | Reads the CSV, validates lines, gets rates through `fXRates.GetExchangeRate(...)` with a cache, converts, writes the output |
+| `ConvertExpenseClaim.cs` | Process | C# coded workflow | Reads the CSV, validates lines, gets rates through the library's GetExchangeRate activity (C# call confirmed in Step 7) with a cache, converts, writes the output |
 | `ExpenseLine.cs` | Process | Code source file | Line model |
 | `ExpenseCalculator.cs` | Process | Code source file | Static validation, conversion, rounding and total logic (no I/O, no API) |
 | `ExpenseCsv.cs` | Process | Code source file | CSV reading and writing |
 | `ConvertExpenseClaimTests.cs` | Process | Coded test case | Tests `ExpenseCalculator` without the API |
 | `WorkflowCoverageTests.xaml` | Process | Low-code test case | Covers `Main.xaml` with a small same-currency input (no API call), for rule TA-DBP-002 |
 
-**Flow:** `Data/Input/expenses.csv` → `Main.xaml` → `ConvertExpenseClaim.cs` → `fXRates.GetExchangeRate` → Frankfurter → `Data/Output/expenses_converted.csv`
+**Flow:** `Data/Input/expenses.csv` → `Main.xaml` → `ConvertExpenseClaim.cs` → library GetExchangeRate → Frankfurter → `Data/Output/expenses_converted.csv`
 
 ## 4. Contract: GetExchangeRate
 
@@ -127,5 +127,5 @@ These dates are in the past, so the ECB rates are fixed and the results repeat o
 - `CultureInfo` needs the `System.Globalization` import (CS0103).
 - Asked only for "annotations", Autopilot may annotate workflows and arguments but skip activities. Ask for every activity by type and for a list to check.
 - The Studio runner may show "Execution aborted" (ST-ANA-003, ST-ANA-009) on runs that completed. Judge by the output and logs.
-- Exporting a library from a project copies every file. Export FX.Rates before the code files exist, and keep only `GetExchangeRate.xaml` in it, otherwise the consumer gets CS0436 duplicate-type warnings.
+- Export as Library can copy every project file into the library. Tick only `GetExchangeRate.xaml`, otherwise the consumer gets CS0436 duplicate-type warnings.
 - Publishing, library export and the FX.Rates install are done by a person in Studio, not by Autopilot. Autopilot runs Git only when asked, after showing the changes for approval.

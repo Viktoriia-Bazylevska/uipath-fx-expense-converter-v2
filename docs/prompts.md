@@ -13,7 +13,7 @@ How they are written: the skill is named on the first line, one task per chat, t
 | 5.2 | 1 | Build, analyze, run 7 cases |
 | 6.1 | 1 | Review (read-only) |
 | 6.2 | 1 | Targeted fix, only if needed |
-| 7.1 | 1 | Switch to the FX.Rates library |
+| 7.1 | 2 | Switch to the library |
 | 8.1 | 2 | Plan the process part |
 | 8.2 | 2 | Build and run |
 | 8.3 | 2 | Tests |
@@ -90,22 +90,26 @@ Fix only these findings in GetExchangeRate.xaml: <paste the findings to fix>. Do
 Then run Workflow Analyzer and re-run test cases 1, 5 and 6 from docs/solution-design.md section 8, and show the results.
 ```
 
-## Manual: export and publish FX.Rates
+## Manual: Export as Library (Step 7)
 
-Export As → Library `FX.Rates`; keep only `GetExchangeRate.xaml` and `project.json`; Analyze; publish to the Tenant feed as 1.0.3; install FX.Rates 1.0.3 in ExpenseClaimConverter.
+In Studio: Export as Library → tick only `GetExchangeRate.xaml` → keep Publish and install, Alter your workflows, Delete replaced workflows → publish to the Tenant feed with a package name and version.
 
-## 7.1 Switch to the library
+## 7.1 Switch to the library (new chat, send 5.0 first)
 
 ```text
-FX.Rates 1.0.3 is now installed. Delete the local GetExchangeRate.xaml from this project.
-Confirm that the GetExchangeRate activity from FX.Rates is available, and show me how to call it from C# with fXRates.GetExchangeRate(...), including its output arguments. Do not create any other files.
+The library <package name> <version> has been exported, published and installed with Studio's Export as Library. Check the project and change only what is needed:
+1. Confirm <package name> is a dependency in project.json with the version pinned to [<version>].
+2. If a local GetExchangeRate.xaml still exists in this project, delete it. Check that nothing in the project still invokes a local GetExchangeRate.xaml.
+3. Confirm that the GetExchangeRate activity from the library is available, and show me how to call it from C#: the exact call Studio generated for this package, its in arguments and its output arguments (out_Success, out_Rate, out_RateDate, out_ErrorMessage).
+4. Run Workflow Analyzer and show the result.
+Do not create any other files.
 ```
 
 ## 8.1 Plan the process part (new chat, send 5.0 first)
 
 ```text
 Plan the process part exactly as in docs/solution-design.md sections 3, 5 and 6: Main.xaml (entry point with the default arguments), ConvertExpenseClaim.cs, ExpenseLine.cs, ExpenseCalculator.cs and ExpenseCsv.cs.
-Get rates only through fXRates.GetExchangeRate(...) from the FX.Rates package. Do not add a local copy of GetExchangeRate and do not call the API directly. Do not create anything yet.
+Get rates only through the GetExchangeRate activity from the library installed in Step 7 (<package name>), using the C# call confirmed in Step 7. Do not add a local copy of GetExchangeRate and do not call the API directly. Do not create anything yet.
 Show the files, classes and methods, the order of work, and every assumption you are making.
 ```
 

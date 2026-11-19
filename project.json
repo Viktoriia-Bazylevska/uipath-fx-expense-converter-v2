@@ -4,6 +4,7 @@
   "description": "ExpenseClaimConverter",
   "main": "Main.xaml",
   "dependencies": {
+    "FX.Rates.Library.v2": "[1.0.1]",
     "UiPath.CodedWorkflows": "[24.10.3]",
     "UiPath.Excel.Activities": "[3.6.1]",
     "UiPath.Mail.Activities": "[2.12.10]",
