@@ -17,7 +17,7 @@ Convert the lines of an expense claim to one target currency (default EUR), usin
 | Compatibility | Windows |
 | Expression language | C# |
 | API | `https://api.frankfurter.dev/v2/rates` (GET, public, no authentication) |
-| Packages | `UiPath.System.Activities`, `UiPath.WebAPI.Activities` 2.5.2, `UiPath.Testing.Activities`; pin every version in `project.json`; no other packages without asking |
+| Packages | `UiPath.System.Activities`, `UiPath.WebAPI.Activities` 2.5.2, `UiPath.Testing.Activities`, plus what Studio adds for coded workflows (`UiPath.CodedWorkflows`); Autopilot adds and pins them. FX.Rates is installed by the developer. No other packages without asking |
 | Orchestrator | Not used at runtime: no assets, queues or credentials |
 
 ## 3. Components
@@ -128,4 +128,4 @@ These dates are in the past, so the ECB rates are fixed and the results repeat o
 - Asked only for "annotations", Autopilot may annotate workflows and arguments but skip activities. Ask for every activity by type and for a list to check.
 - The Studio runner may show "Execution aborted" (ST-ANA-003, ST-ANA-009) on runs that completed. Judge by the output and logs.
 - Exporting a library from a project copies every file. Export FX.Rates before the code files exist, and keep only `GetExchangeRate.xaml` in it, otherwise the consumer gets CS0436 duplicate-type warnings.
-- Publishing, package installs, library export and Git push are done by a person in Studio, not by Autopilot.
+- Publishing, library export and the FX.Rates install are done by a person in Studio, not by Autopilot. Autopilot runs Git only when asked, after showing the changes for approval.

@@ -2,10 +2,12 @@
 
 These prompts build ExpenseClaimConverter and the FX.Rates library from `docs/solution-design.md`. Record any extra prompt you send (fixes, follow-ups) in `docs/build-log.md`.
 
-How they are written: the skill is named on the first line, one task per chat, the exact file is named, a plan comes before the build, and every build ends with a run as evidence. Platform steps (library export, publishing, package installs, Git) are done by hand in Studio.
+How they are written: the skill is named on the first line, one task per chat, the exact file is named, a plan comes before the build, and every build ends with a run as evidence. Platform steps (library export, publishing, the FX.Rates install) are done by hand in Studio; Git runs through Autopilot only when you ask; the prompt itself gives the OK, and Autopilot stops if a check fails.
 
 | # | Chat | Purpose |
 | --- | --- | --- |
+| 4.1 | 1 | Initial Git commit and push |
+| 4.2 | 1 and 2 | Commit and push after each step |
 | 5.0 | 1 and 2 | Start of chat: read the design |
 | 5.1 | 1 | Plan GetExchangeRate |
 | 5.2 | 1 | Build, analyze, run 7 cases |
@@ -19,12 +21,41 @@ How they are written: the skill is named on the first line, one task per chat, t
 | 9.2 | 2 | Bug hunt with edge cases (no changes) |
 | 9.3 | 2 | Fix the bugs one at a time |
 
+## 4.1 Initial commit and push (Step 4)
+
+```text
+Make the initial Git commit and push for this project in one go. This message is my OK to commit and push, as long as every check below passes.
+
+Repository URL: <your repository URL from Step 2>
+Branch: main
+
+1. Check: is this folder a Git repository, which branch is active, and which remotes are set?
+   - If it is not a repository: run git init and create the branch main.
+   - If origin is missing: add origin with the repository URL above.
+   - If origin exists but points to a different URL: stop and tell me; do not change it.
+2. Make sure .gitignore contains these lines, and add any that are missing: .local/, .objects/, .screenshots/, *.nupkg, Data/Output/, CLAUDE.md, .tmh/
+3. Stage all files. Check that no Data/Output/ files, .nupkg packages, credentials, tokens or tenant URLs are staged. The author name in docs/ is intended; keep it. If anything else looks wrong, stop and tell me before committing.
+4. If the checks are clean: commit with exactly this message: "Initial project structure".
+5. Push to origin main and set it as the upstream branch. After the push, check the result with git status and git log origin/main -1. Report the push as successful only if origin/main shows the new commit; otherwise (for example, sign-in is needed or the remote is not empty) stop and show me the error.
+6. Show me the list of committed files, the commit hash, the branch, the remote URL and the result of the push.
+```
+
+## 4.2 Commit and push after each step (Steps 5–10)
+
+```text
+Commit and push the current changes in one go. This message is my OK, as long as the check below passes.
+1. Stage all changes. Check that no Data/Output/ files, .nupkg packages, credentials, tokens or tenant URLs are staged. If any are, stop and tell me before committing.
+2. Commit with exactly this message: "<message>".
+3. Push to origin main. After the push, check the result with git status and git log origin/main -1. Report the push as successful only if origin/main shows the new commit; otherwise stop and show me the error.
+4. Show me the list of committed files, the commit hash and the result of the push.
+```
+
 ## 5.0 Start of every chat
 
 ```text
 Use the uipath-rpa skill.
 Follow AGENTS.md and read docs/solution-design.md in this project. The design is the source of truth: components, contracts, rules, conventions and test cases. Follow section 6 (Conventions) in every change.
-Do not publish, install packages or run Git commands; I do those myself. Do not change files in docs/ unless I ask.
+Do not publish; add only the packages listed in the design. Run Git only when I ask. Do not change files in docs/ unless I ask.
 Reply with a 5-line summary of what you understood, and nothing else.
 ```
 
@@ -38,7 +69,7 @@ List: the activities in order with their display names, the variables, the packa
 ## 5.2 Build, analyze, test
 
 ```text
-The plan is approved. Build GetExchangeRate.xaml in this project. Then:
+The plan is approved. First, if UiPath.WebAPI.Activities 2.5.2 (docs/solution-design.md section 2) is missing from project.json, add it with that pinned version and restore the packages. Then build GetExchangeRate.xaml in this project, and after that:
 1. Add an annotation to EVERY activity (including Sequence, Try Catch, Retry Scope, Assign, If and Log Message), 1-2 lines on what it does and why, plus a description on every argument. Then list every activity display name with its annotation, so I can check that none is missing.
 2. Run Workflow Analyzer and fix every error and warning (ST-USG-034 may stay).
 3. Run the workflow once for each of the 7 GetExchangeRate test cases in docs/solution-design.md section 8.
@@ -81,7 +112,7 @@ Show the files, classes and methods, the order of work, and every assumption you
 ## 8.2 Build and run
 
 ```text
-The plan is approved. Build the files, set Main.xaml as the entry point in project.json and set requiresUserInteraction to false.
+The plan is approved. First add any package from docs/solution-design.md section 2 that the files need and project.json is missing (for example UiPath.Testing.Activities or UiPath.CodedWorkflows), with pinned versions, and restore the packages. Then build the files, set Main.xaml as the entry point in project.json and set requiresUserInteraction to false.
 Add an annotation to EVERY activity in Main.xaml and a description on every argument, and XML doc comments to the public classes and methods. List every activity in Main.xaml with its annotation.
 Run Workflow Analyzer and fix every error and warning (ST-USG-034 may stay). Then run Main.xaml with its default arguments and show: lines read, converted, failed, the TOTAL, the number of rate lookups, and the first 3 output rows.
 ```
