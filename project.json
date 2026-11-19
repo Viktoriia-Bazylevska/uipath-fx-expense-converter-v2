@@ -23,7 +23,7 @@
     "netFrameworkLazyLoading": false,
     "isPausable": true,
     "isAttended": false,
-    "requiresUserInteraction": true,
+    "requiresUserInteraction": false,
     "supportsPersistence": false,
     "workflowSerialization": "NewtonsoftJson",
     "excludedLoggedData": [
@@ -45,7 +45,24 @@
     "processOptions": {
       "ignoredFiles": []
     },
-    "fileInfoCollection": [],
+    "fileInfoCollection": [
+      {
+        "editingStatus": "InProgress",
+        "testCaseId": "e359e75c-b6b5-4293-9436-38fc78615ef6",
+        "testCaseType": "TestCase",
+        "executionTemplateInvokeIsolated": false,
+        "fileName": "ConvertExpenseClaimTests.cs",
+        "publishAsTestCase": true
+      },
+      {
+        "editingStatus": "InProgress",
+        "testCaseId": "8127424e-33ec-44b1-a2b8-8e616f1e01c7",
+        "testCaseType": "TestCase",
+        "executionTemplateInvokeIsolated": false,
+        "fileName": "WorkflowCoverageTests.xaml",
+        "publishAsTestCase": true
+      }
+    ],
     "saveToCloud": false
   },
   "expressionLanguage": "CSharp",

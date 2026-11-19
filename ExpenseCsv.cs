@@ -8,7 +8,7 @@ namespace ExpenseClaimConverter
     /// <summary>Reads the defined expense CSV shape and writes the converted output CSV.</summary>
     public static class ExpenseCsv
     {
-        private static readonly string[] RequiredColumns = { "LineId", "ExpenseDate", "Description", "Amount", "Currency" };
+        private static readonly string[] RequiredColumns = ["LineId", "ExpenseDate", "Description", "Amount", "Currency"];
 
         /// <summary>Reads expense lines and validates the required header.</summary>
         public static IReadOnlyList<ExpenseLine> Read(string inputPath)
@@ -37,7 +37,7 @@ namespace ExpenseClaimConverter
                 }
             }
 
-            List<ExpenseLine> expenses = new List<ExpenseLine>();
+            List<ExpenseLine> expenses = [];
             for (int lineIndex = 1; lineIndex < sourceLines.Length; lineIndex++)
             {
                 if (string.IsNullOrWhiteSpace(sourceLines[lineIndex]))
@@ -70,7 +70,7 @@ namespace ExpenseClaimConverter
                 Directory.CreateDirectory(directory);
             }
 
-            StringBuilder output = new StringBuilder();
+            StringBuilder output = new();
             output.AppendLine("LineId,ExpenseDate,Description,Amount,Currency,Rate,RateDate,ConvertedAmount,Status,Message");
             foreach (ExpenseLine line in lines)
             {

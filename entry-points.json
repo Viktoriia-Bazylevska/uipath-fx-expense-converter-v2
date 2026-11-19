@@ -4,7 +4,31 @@
     {
       "filePath": "Main.xaml",
       "uniqueId": "fce6c6e9-2bf9-460e-9c50-7451b5e6682e",
-      "type": "process"
+      "type": "process",
+      "input": {
+        "type": "object",
+        "properties": {
+          "in_InputPath": {
+            "type": "string",
+            "description": "Input CSV path. The default points to the design-specified expense input file.",
+            "x-default-expression": "\"Data/Input/expenses.csv\"",
+            "default": "Data/Input/expenses.csv"
+          },
+          "in_OutputPath": {
+            "type": "string",
+            "description": "Output CSV path. The default points to the design-specified converted expense output file.",
+            "x-default-expression": "\"Data/Output/expenses_converted.csv\"",
+            "default": "Data/Output/expenses_converted.csv"
+          },
+          "in_TargetCurrency": {
+            "type": "string",
+            "description": "Target currency code used for conversion. The default is EUR.",
+            "x-default-expression": "\"EUR\"",
+            "default": "EUR"
+          }
+        },
+        "required": []
+      }
     }
   ]
 }

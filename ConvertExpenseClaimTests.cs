@@ -19,12 +19,12 @@ namespace ExpenseClaimConverter
             bool negativeAmountRejected = !ExpenseCalculator.TryParseAmount("-5.00", out _, out string negativeAmountError);
             bool invalidCurrencyRejected = !ExpenseCalculator.TryValidateCurrency("US", out _, out string invalidCurrencyError);
             bool futureDateRejected = ExpenseCalculator.IsFutureDate(DateTime.Today.AddDays(1));
-            List<ExpenseLine> lines = new List<ExpenseLine>
-            {
-                new ExpenseLine { Status = "Converted", ConvertedAmount = 10.01m },
-                new ExpenseLine { Status = "Converted", ConvertedAmount = 2.34m },
-                new ExpenseLine { Status = "Failed", ConvertedAmount = null }
-            };
+            List<ExpenseLine> lines =
+            [
+                new() { Status = "Converted", ConvertedAmount = 10.01m },
+                new() { Status = "Converted", ConvertedAmount = 2.34m },
+                new() { Status = "Failed", ConvertedAmount = null }
+            ];
 
             // WHEN: the pure calculator methods process the prepared values.
             decimal total = ExpenseCalculator.CalculateTotal(lines);

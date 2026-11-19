@@ -137,6 +137,13 @@
           </InArgument>
         </uta:VerifyExpression.Expression>
       </uta:VerifyExpression>
+      <ui:LogMessage DisplayName="Log coverage test end" Level="Info" sap2010:Annotation.AnnotationText="Records that the API-free coverage test completed after all output verifications passed." sap2010:WorkflowViewState.IdRef="LogMessage_2">
+        <ui:LogMessage.Message>
+          <InArgument x:TypeArguments="x:Object">
+            <CSharpValue x:TypeArguments="x:Object" sap2010:WorkflowViewState.IdRef="CSharpValue`1_14">"Workflow coverage test ended"</CSharpValue>
+          </InArgument>
+        </ui:LogMessage.Message>
+      </ui:LogMessage>
     </Sequence>
   </Sequence>
 </Activity>

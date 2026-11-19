@@ -50,8 +50,8 @@ namespace ExpenseClaimConverter
         public static bool TryGetSameCurrencyRate(string baseCurrency, string quoteCurrency, out decimal rate)
         {
             rate = 0m;
-            if (!TryValidateCurrency(baseCurrency, out string normalizedBase, out string baseError) ||
-                !TryValidateCurrency(quoteCurrency, out string normalizedQuote, out string quoteError) ||
+            if (!TryValidateCurrency(baseCurrency, out string normalizedBase, out _) ||
+                !TryValidateCurrency(quoteCurrency, out string normalizedQuote, out _) ||
                 !string.Equals(normalizedBase, normalizedQuote, StringComparison.Ordinal))
             {
                 return false;

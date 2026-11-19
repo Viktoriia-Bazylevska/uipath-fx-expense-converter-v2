@@ -32,7 +32,7 @@ namespace ExpenseClaimConverter
                     Log("No expense lines", LogLevel.Warn);
                 }
 
-                Dictionary<string, RateLookup> rateCache = new Dictionary<string, RateLookup>(StringComparer.Ordinal);
+                Dictionary<string, RateLookup> rateCache = new(StringComparer.Ordinal);
                 foreach (ExpenseLine line in lines)
                 {
                     ProcessLine(line, targetCurrency, rateCache, ref rateLookupCount);
@@ -47,12 +47,13 @@ namespace ExpenseClaimConverter
                 }
 
                 decimal total = ExpenseCalculator.CalculateTotal(lines);
+                Log("Output file will be overwritten: " + Path.GetFileName(outputPath), LogLevel.Info);
                 ExpenseCsv.Write(outputPath, lines, total, targetCurrency);
                 Log(string.Format(CultureInfo.InvariantCulture, "ConvertExpenseClaim ended; LinesRead={0}; Converted={1}; Failed={2}; Total={3:0.00}; RateLookups={4}", lines.Count, convertedCount, failedCount, total, rateLookupCount), LogLevel.Info);
             }
             catch (Exception exception)
             {
-                Log("ConvertExpenseClaim failed: " + exception.GetType().Name, LogLevel.Error);
+                Log("Operation=ConvertExpenseClaim; ExceptionType=" + exception.GetType().Name + "; Message=" + exception.Message, LogLevel.Error);
                 throw;
             }
         }
@@ -86,7 +87,7 @@ namespace ExpenseClaimConverter
             RateLookup lookup;
             if (string.Equals(currency, targetCurrency, StringComparison.Ordinal))
             {
-                lookup = new RateLookup(true, 1m, expenseDate, string.Empty);
+                lookup = new(true, 1m, expenseDate, string.Empty);
             }
             else
             {
@@ -121,7 +122,7 @@ namespace ExpenseClaimConverter
                 in_QuoteCurrency: targetCurrency,
                 in_RateDate: expenseDate,
                 isolated: false);
-            RateLookup lookup = new RateLookup(result.Item1, result.Item2, result.Item3, result.Item4);
+            var lookup = new RateLookup(result.Item1, result.Item2, result.Item3, result.Item4);
             rateCache[cacheKey] = lookup;
             return lookup;
         }
