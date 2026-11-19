@@ -63,7 +63,6 @@
       <Variable x:TypeArguments="uwahm:HttpResponseSummary" Name="httpResponse" />
       <Variable x:TypeArguments="x:Int32" Name="responseStatus" />
       <Variable x:TypeArguments="njl:JArray" Name="ratesArray" />
-      <Variable x:TypeArguments="njl:JToken" Name="rateItem" />
       <Variable x:TypeArguments="x:Boolean" Name="rateFound" />
       <Variable x:TypeArguments="x:Decimal" Name="parsedRate" />
       <Variable x:TypeArguments="s:DateTime" Name="parsedRateDate" />
@@ -76,7 +75,7 @@
     <ui:LogMessage sap2010:Annotation.AnnotationText="Records the start of the lookup at Info level without logging request URLs, response bodies, or sensitive data." DisplayName="Log workflow start" sap2010:WorkflowViewState.IdRef="LogMessage_1" Level="Info">
       <ui:LogMessage.Message>
         <InArgument x:TypeArguments="x:Object">
-          <CSharpValue x:TypeArguments="x:Object" sap2010:WorkflowViewState.IdRef="CSharpValue`1_1">"GetExchangeRate started"</CSharpValue>
+          <CSharpValue x:TypeArguments="x:Object" sap2010:WorkflowViewState.IdRef="CSharpValue`1_1">"GetExchangeRate started; LookupCount=1"</CSharpValue>
         </InArgument>
       </ui:LogMessage.Message>
     </ui:LogMessage>
@@ -313,7 +312,7 @@
                 <TryCatch sap2010:Annotation.AnnotationText="Contains the external request and response processing so timeouts, connection failures, and malformed responses become a defined result." DisplayName="Call and process rate service" sap2010:WorkflowViewState.IdRef="TryCatch_1">
                   <TryCatch.Try>
                     <Sequence sap2010:Annotation.AnnotationText="Retries the HTTP call, maps supported HTTP statuses, and parses the returned rate array." DisplayName="Rate service try" sap2010:WorkflowViewState.IdRef="Sequence_6">
-                      <ui:RetryScope RetriedExceptionsLogLevel="{x:Null}" sap2010:Annotation.AnnotationText="Executes the request up to three times with a two-second interval when the call throws or returns HTTP 5xx." ContinueOnError="False" DisplayName="Retry transient rate request" sap2010:WorkflowViewState.IdRef="RetryScope_1" LogRetriedExceptions="False" NumberOfRetries="3" RetryInterval="00:00:02">
+                      <ui:RetryScope RetriedExceptionsLogLevel="{x:Null}" sap2010:Annotation.AnnotationText="Executes exactly three total HTTP attempts at most, with two-second intervals after a thrown error or HTTP 5xx response." ContinueOnError="False" DisplayName="Retry transient rate request" sap2010:WorkflowViewState.IdRef="RetryScope_1" LogRetriedExceptions="False" NumberOfRetries="3" RetryInterval="00:00:02">
                         <ui:RetryScope.ActivityBody>
                           <ActivityAction>
                             <Sequence sap2010:Annotation.AnnotationText="Performs one idempotent GET attempt without enabling the HTTP activity's own retry policy." DisplayName="Rate request action" sap2010:WorkflowViewState.IdRef="Sequence_7">
@@ -334,20 +333,27 @@
                                   </InArgument>
                                 </uwah:NetHttpRequest.TimeoutInMiliseconds>
                               </uwah:NetHttpRequest>
+                              <If sap2010:Annotation.AnnotationText="Raises a system exception for HTTP 5xx responses so the surrounding Retry Scope repeats the complete request." DisplayName="Throw on server error" sap2010:WorkflowViewState.IdRef="If_3">
+                                <If.Condition>
+                                  <InArgument x:TypeArguments="x:Boolean">
+                                    <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_48">(int)httpResponse.StatusCode &gt;= 500 &amp;&amp; (int)httpResponse.StatusCode &lt;= 599</CSharpValue>
+                                  </InArgument>
+                                </If.Condition>
+                                <If.Then>
+                                  <Sequence sap2010:Annotation.AnnotationText="Throws a retryable system exception for the HTTP 5xx response; the outer Catch handles the final exhausted attempt." DisplayName="Server error branch" sap2010:WorkflowViewState.IdRef="Sequence_16">
+                                    <Throw sap2010:Annotation.AnnotationText="Signals the HTTP 5xx response as a transient system failure for Retry Scope." DisplayName="Raise retryable server error" sap2010:WorkflowViewState.IdRef="Throw_1">
+                                      <Throw.Exception>
+                                        <InArgument x:TypeArguments="s:Exception">
+                                          <CSharpValue x:TypeArguments="s:Exception" sap2010:WorkflowViewState.IdRef="CSharpValue`1_49">new System.InvalidOperationException("Rate service returned HTTP 5xx.")</CSharpValue>
+                                        </InArgument>
+                                      </Throw.Exception>
+                                    </Throw>
+                                  </Sequence>
+                                </If.Then>
+                              </If>
                             </Sequence>
                           </ActivityAction>
                         </ui:RetryScope.ActivityBody>
-                        <ui:RetryScope.Condition>
-                          <ActivityFunc x:TypeArguments="x:Boolean">
-                            <ui:CheckTrue sap2010:Annotation.AnnotationText="Ends the retry scope for non-5xx responses; a false condition retries the request after a server error." DisplayName="Accept non-5xx response" ErrorMessage="The rate service returned HTTP 5xx." sap2010:WorkflowViewState.IdRef="CheckTrue_1">
-                              <ui:CheckTrue.Expression>
-                                <InArgument x:TypeArguments="x:Boolean">
-                                  <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_23">(int)httpResponse.StatusCode &lt; 500</CSharpValue>
-                                </InArgument>
-                              </ui:CheckTrue.Expression>
-                            </ui:CheckTrue>
-                          </ActivityFunc>
-                        </ui:RetryScope.Condition>
                       </ui:RetryScope>
                       <Assign sap2010:Annotation.AnnotationText="Stores the final non-5xx response status for the contract-defined 404 and 422 handling." DisplayName="Capture HTTP status" sap2010:WorkflowViewState.IdRef="Assign_17">
                         <Assign.To>
@@ -361,14 +367,13 @@
                           </InArgument>
                         </Assign.Value>
                       </Assign>
-                      <If sap2010:Annotation.AnnotationText="Maps HTTP 404 and 422 to the required unsupported-currency-or-date result without attempting JSON parsing." DisplayName="Handle unsupported currency or date" sap2010:WorkflowViewState.IdRef="If_3">
-                        <If.Condition>
-                          <InArgument x:TypeArguments="x:Boolean">
-                            <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_25">responseStatus == 404 || responseStatus == 422</CSharpValue>
+                      <Switch x:TypeArguments="x:String" sap2010:Annotation.AnnotationText="Classifies the final HTTP status so only supported success responses are parsed and defined failure responses are returned." DisplayName="Classify HTTP response status" sap2010:WorkflowViewState.IdRef="Switch`1_3">
+                        <Switch.Expression>
+                          <InArgument x:TypeArguments="x:String">
+                            <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_45">responseStatus == 404 || responseStatus == 422 ? "Unsupported" : (responseStatus &gt;= 200 &amp;&amp; responseStatus &lt; 300 ? "Success" : "Unavailable")</CSharpValue>
                           </InArgument>
-                        </If.Condition>
-                        <If.Then>
-                          <Sequence sap2010:Annotation.AnnotationText="Returns the defined unsupported currency or date message and records a warning." DisplayName="Unsupported response branch" sap2010:WorkflowViewState.IdRef="Sequence_8">
+                        </Switch.Expression>
+                        <Sequence x:Key="Unsupported" sap2010:Annotation.AnnotationText="Returns the defined unsupported currency or date message and records a warning." DisplayName="Unsupported response branch" sap2010:WorkflowViewState.IdRef="Sequence_8">
                             <Assign sap2010:Annotation.AnnotationText="Sets the failure message required for HTTP 404 and 422 responses." DisplayName="Set unsupported result" sap2010:WorkflowViewState.IdRef="Assign_18">
                               <Assign.To>
                                 <OutArgument x:TypeArguments="x:String">
@@ -389,9 +394,7 @@
                               </ui:LogMessage.Message>
                             </ui:LogMessage>
                           </Sequence>
-                        </If.Then>
-                        <If.Else>
-                          <Sequence sap2010:Annotation.AnnotationText="Deserializes the response array and searches it for the requested quote currency." DisplayName="Parse supported response branch" sap2010:WorkflowViewState.IdRef="Sequence_9">
+                        <Sequence x:Key="Success" sap2010:Annotation.AnnotationText="Deserializes the response array and searches it for the requested quote currency." DisplayName="Parse supported response branch" sap2010:WorkflowViewState.IdRef="Sequence_9">
                             <ui:DeserializeJsonArray sap2010:Annotation.AnnotationText="Converts the Frankfurter JSON array text into JArray items for invariant-culture parsing." DisplayName="Deserialize exchange-rate response" sap2010:WorkflowViewState.IdRef="DeserializeJsonArray_1">
                               <ui:DeserializeJsonArray.JsonArray>
                                 <OutArgument x:TypeArguments="njl:JArray">
@@ -408,7 +411,7 @@
                               <ui:ForEach.Body>
                                 <ActivityAction x:TypeArguments="njl:JToken">
                                   <ActivityAction.Argument>
-                                    <DelegateInArgument x:TypeArguments="njl:JToken" Name="rateItem" />
+                                    <DelegateInArgument x:TypeArguments="njl:JToken" Name="rateItem" sap2010:Annotation.AnnotationText="Current JSON rate item being inspected for the requested quote currency." />
                                   </ActivityAction.Argument>
                                   <Sequence sap2010:Annotation.AnnotationText="Checks the current JSON object and parses its rate and returned date when it matches the requested quote." DisplayName="Match quote item" sap2010:WorkflowViewState.IdRef="Sequence_10">
                                     <Switch x:TypeArguments="x:Boolean" DisplayName="Match requested quote" sap2010:WorkflowViewState.IdRef="Switch`1_1" sap2010:Annotation.AnnotationText="Selects only the JSON item for the requested quote without adding another nested If level.">
@@ -553,15 +556,37 @@
                               </Switch.Default>
                             </Switch>
                           </Sequence>
-                        </If.Else>
-                      </If>
+                            <Switch.Default>
+                              <Sequence DisplayName="Non-success HTTP response branch" sap2010:WorkflowViewState.IdRef="Sequence_15" sap2010:Annotation.AnnotationText="Handles non-retryable HTTP statuses other than 404 and 422 without attempting to parse a non-success response body.">
+                                <Assign DisplayName="Set non-success service result" sap2010:WorkflowViewState.IdRef="Assign_28" sap2010:Annotation.AnnotationText="Returns the defined service-unavailable message for a non-2xx response that is not otherwise mapped.">
+                                  <Assign.To>
+                                    <OutArgument x:TypeArguments="x:String">
+                                      <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_30">out_ErrorMessage</CSharpReference>
+                                    </OutArgument>
+                                  </Assign.To>
+                                  <Assign.Value>
+                                    <InArgument x:TypeArguments="x:String">
+                                      <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_46">"Rate service unavailable, try again later"</CSharpValue>
+                                    </InArgument>
+                                  </Assign.Value>
+                                </Assign>
+                                <ui:LogMessage DisplayName="Log non-success HTTP warning" Level="Warn" sap2010:WorkflowViewState.IdRef="LogMessage_9" sap2010:Annotation.AnnotationText="Records a non-retryable non-2xx response at Warning level without logging the response body or full URL.">
+                                  <ui:LogMessage.Message>
+                                    <InArgument x:TypeArguments="x:Object">
+                                      <CSharpValue x:TypeArguments="x:Object" sap2010:WorkflowViewState.IdRef="CSharpValue`1_47">"Rate service returned HTTP status " + responseStatus.ToString()</CSharpValue>
+                                    </InArgument>
+                                  </ui:LogMessage.Message>
+                                </ui:LogMessage>
+                              </Sequence>
+                            </Switch.Default>
+                          </Switch>
                     </Sequence>
                   </TryCatch.Try>
                   <TryCatch.Catches>
                     <Catch x:TypeArguments="s:Exception" sap2010:Annotation.AnnotationText="Handles exhausted transient retries and response parsing failures by returning the defined service-unavailable result." sap2010:WorkflowViewState.IdRef="Catch`1_1">
                       <ActivityAction x:TypeArguments="s:Exception">
                         <ActivityAction.Argument>
-                          <DelegateInArgument x:TypeArguments="s:Exception" Name="exception" />
+                          <DelegateInArgument x:TypeArguments="s:Exception" Name="exception" sap2010:Annotation.AnnotationText="The exception caught from the HTTP request, retry scope, or response parsing so the workflow can return a defined failure result." />
                         </ActivityAction.Argument>
                         <Sequence sap2010:Annotation.AnnotationText="Logs a concise system-error classification and converts it into a non-throwing output result." DisplayName="Rate service catch" sap2010:WorkflowViewState.IdRef="Sequence_14">
                           <Assign sap2010:Annotation.AnnotationText="Returns the required service-unavailable message after timeout, connection, 5xx, or parsing failure." DisplayName="Set service unavailable result" sap2010:WorkflowViewState.IdRef="Assign_27">
@@ -597,7 +622,7 @@
     <ui:LogMessage sap2010:Annotation.AnnotationText="Records the final outcome at Info level after every validation, shortcut, service, or parsing path has assigned outputs." DisplayName="Log workflow end" sap2010:WorkflowViewState.IdRef="LogMessage_8" Level="Info">
       <ui:LogMessage.Message>
         <InArgument x:TypeArguments="x:Object">
-          <CSharpValue x:TypeArguments="x:Object" sap2010:WorkflowViewState.IdRef="CSharpValue`1_44">"GetExchangeRate ended. Success=" + out_Success.ToString() + "; Rate=" + out_Rate.ToString(System.Globalization.CultureInfo.InvariantCulture) + "; RateDate=" + out_RateDate.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture) + "; Error=" + out_ErrorMessage</CSharpValue>
+          <CSharpValue x:TypeArguments="x:Object" sap2010:WorkflowViewState.IdRef="CSharpValue`1_44">"GetExchangeRate ended; LookupCount=1; Success=" + out_Success.ToString() + "; Rate=" + out_Rate.ToString(System.Globalization.CultureInfo.InvariantCulture) + "; RateDate=" + out_RateDate.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture) + "; Error=" + out_ErrorMessage</CSharpValue>
         </InArgument>
       </ui:LogMessage.Message>
     </ui:LogMessage>
