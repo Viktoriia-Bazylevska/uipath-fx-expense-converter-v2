@@ -1,0 +1,142 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="WorkflowCoverageTests" sap2010:Annotation.AnnotationText="API-free workflow coverage test. It creates a one-line EUR-to-EUR fixture, invokes Main.xaml with EUR as the target, and verifies the output without an external rate lookup." sap2010:ExpressionActivityEditor.ExpressionActivityEditor="C#" sap2010:WorkflowViewState.IdRef="ActivityBuilder_1" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:uta="clr-namespace:UiPath.Testing.Activities;assembly=UiPath.Testing.Activities" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>GlobalConstantsNamespace</x:String>
+      <x:String>GlobalVariablesNamespace</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>UiPath.Testing.Activities</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Testing.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.ObjectModel</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence sap2010:Annotation.AnnotationText="Coordinates the Given-When-Then API-free coverage test and keeps its temporary paths inside the operating-system temp directory." DisplayName="Workflow coverage test" sap2010:WorkflowViewState.IdRef="Sequence_1">
+    <Sequence.Variables>
+      <Variable x:TypeArguments="x:String" Name="testInputPath" />
+      <Variable x:TypeArguments="x:String" Name="testOutputPath" />
+      <Variable x:TypeArguments="x:String" Name="outputText" />
+    </Sequence.Variables>
+    <sap:WorkflowViewStateService.ViewState>
+      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+      </scg:Dictionary>
+    </sap:WorkflowViewStateService.ViewState>
+    <ui:LogMessage DisplayName="Log coverage test start" Level="Info" sap2010:Annotation.AnnotationText="Records that the API-free coverage test has started before its fixture and verification activities run." sap2010:WorkflowViewState.IdRef="LogMessage_1">
+      <ui:LogMessage.Message>
+        <InArgument x:TypeArguments="x:Object">
+          <CSharpValue x:TypeArguments="x:Object" sap2010:WorkflowViewState.IdRef="CSharpValue`1_13">"Workflow coverage test started"</CSharpValue>
+        </InArgument>
+      </ui:LogMessage.Message>
+    </ui:LogMessage>
+    <Sequence sap2010:Annotation.AnnotationText="Creates a temporary one-line EUR expense fixture so Main.xaml can run without requesting an external exchange rate." DisplayName="Given - same currency fixture" sap2010:WorkflowViewState.IdRef="Sequence_2">
+      <Assign sap2010:Annotation.AnnotationText="TODO remove: Builds a temporary input path for this test run and avoids adding a test data file to the project." DisplayName="Set test input path" sap2010:WorkflowViewState.IdRef="Assign_1">
+        <Assign.To>
+          <OutArgument x:TypeArguments="x:String">
+            <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_1">testInputPath</CSharpReference>
+          </OutArgument>
+        </Assign.To>
+        <Assign.Value>
+          <InArgument x:TypeArguments="x:String">
+            <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_1">System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ExpenseClaimConverter_WorkflowCoverage_Input.csv")</CSharpValue>
+          </InArgument>
+        </Assign.Value>
+      </Assign>
+      <Assign sap2010:Annotation.AnnotationText="TODO remove: Builds a temporary output path so the coverage test does not overwrite the normal process output." DisplayName="Set test output path" sap2010:WorkflowViewState.IdRef="Assign_2">
+        <Assign.To>
+          <OutArgument x:TypeArguments="x:String">
+            <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_2">testOutputPath</CSharpReference>
+          </OutArgument>
+        </Assign.To>
+        <Assign.Value>
+          <InArgument x:TypeArguments="x:String">
+            <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_2">System.IO.Path.Combine(System.IO.Path.GetTempPath(), "ExpenseClaimConverter_WorkflowCoverage_Output.csv")</CSharpValue>
+          </InArgument>
+        </Assign.Value>
+      </Assign>
+      <ui:WriteTextFile File="{x:Null}" Output="{x:Null}" sap2010:Annotation.AnnotationText="TODO remove: Writes one EUR expense line with a decimal amount; the target is also EUR, so the workflow must use rate 1 and make no API call." DisplayName="Write same currency fixture" Encoding="utf-8" sap2010:WorkflowViewState.IdRef="WriteTextFile_1">
+        <ui:WriteTextFile.FileName>
+          <InArgument x:TypeArguments="x:String">
+            <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_3">testInputPath</CSharpValue>
+          </InArgument>
+        </ui:WriteTextFile.FileName>
+        <ui:WriteTextFile.Text>
+          <InArgument x:TypeArguments="x:String">
+            <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_4">"LineId,ExpenseDate,Description,Amount,Currency\n1,2026-11-03,Same currency test,10.005,EUR\n"</CSharpValue>
+          </InArgument>
+        </ui:WriteTextFile.Text>
+      </ui:WriteTextFile>
+    </Sequence>
+    <Sequence sap2010:Annotation.AnnotationText="Invokes Main.xaml with the temporary same-currency input and EUR target, which exercises the process path without a library rate lookup." DisplayName="When - run Main without API" sap2010:WorkflowViewState.IdRef="Sequence_3">
+      <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" sap2010:Annotation.AnnotationText="Runs the process entry point against the same-currency fixture and temporary output path." DisplayName="Invoke Main for coverage" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_1" UnSafe="False" WorkflowFileName="Main.xaml">
+        <ui:InvokeWorkflowFile.Arguments>
+          <InArgument x:TypeArguments="x:String" x:Key="in_InputPath">
+            <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_5">testInputPath</CSharpValue>
+          </InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="in_OutputPath">
+            <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_6">testOutputPath</CSharpValue>
+          </InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="in_TargetCurrency">
+            <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_7">"EUR"</CSharpValue>
+          </InArgument>
+        </ui:InvokeWorkflowFile.Arguments>
+      </ui:InvokeWorkflowFile>
+    </Sequence>
+    <Sequence sap2010:Annotation.AnnotationText="Reads the temporary output and verifies the converted amount, status, and total produced by the API-free run." DisplayName="Then - verify same currency result" sap2010:WorkflowViewState.IdRef="Sequence_4">
+      <ui:ReadTextFile File="{x:Null}" sap2010:Annotation.AnnotationText="Reads the output CSV text so verification activities can assert the same-currency result and total." DisplayName="Read coverage output" Encoding="utf-8" sap2010:WorkflowViewState.IdRef="ReadTextFile_1">
+        <ui:ReadTextFile.Content>
+          <OutArgument x:TypeArguments="x:String">
+            <CSharpReference x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpReference`1_3">outputText</CSharpReference>
+          </OutArgument>
+        </ui:ReadTextFile.Content>
+        <ui:ReadTextFile.FileName>
+          <InArgument x:TypeArguments="x:String">
+            <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_8">testOutputPath</CSharpValue>
+          </InArgument>
+        </ui:ReadTextFile.FileName>
+      </ui:ReadTextFile>
+      <uta:VerifyExpression KeepScreenshots="{x:Null}" OutputMessageFormat="{x:Null}" Result="{x:Null}" ScreenshotsPath="{x:Null}" sap2010:Annotation.AnnotationText="Verifies that the same-currency line is converted with rate 1 and rounded to 10.01." ContinueOnFailure="False" DisplayName="Verify same currency conversion" sap2010:WorkflowViewState.IdRef="VerifyExpression_1" TakeScreenshotInCaseOfFailingAssertion="False" TakeScreenshotInCaseOfSucceedingAssertion="False">
+        <uta:VerifyExpression.AlternativeVerificationTitle>
+          <InArgument x:TypeArguments="x:String">
+            <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_10">"Same-currency conversion output"</CSharpValue>
+          </InArgument>
+        </uta:VerifyExpression.AlternativeVerificationTitle>
+        <uta:VerifyExpression.Expression>
+          <InArgument x:TypeArguments="x:Boolean">
+            <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_9">outputText.Contains("1,2026-11-03,Same currency test,10.005,EUR,1,2026-11-03,10.01,Converted,")</CSharpValue>
+          </InArgument>
+        </uta:VerifyExpression.Expression>
+      </uta:VerifyExpression>
+      <uta:VerifyExpression KeepScreenshots="{x:Null}" OutputMessageFormat="{x:Null}" Result="{x:Null}" ScreenshotsPath="{x:Null}" sap2010:Annotation.AnnotationText="Verifies that the output contains a TOTAL row of 10.01 EUR and therefore the workflow completed its conversion path." ContinueOnFailure="False" DisplayName="Verify coverage total" sap2010:WorkflowViewState.IdRef="VerifyExpression_2" TakeScreenshotInCaseOfFailingAssertion="False" TakeScreenshotInCaseOfSucceedingAssertion="False">
+        <uta:VerifyExpression.AlternativeVerificationTitle>
+          <InArgument x:TypeArguments="x:String">
+            <CSharpValue x:TypeArguments="x:String" sap2010:WorkflowViewState.IdRef="CSharpValue`1_12">"Same-currency total"</CSharpValue>
+          </InArgument>
+        </uta:VerifyExpression.AlternativeVerificationTitle>
+        <uta:VerifyExpression.Expression>
+          <InArgument x:TypeArguments="x:Boolean">
+            <CSharpValue x:TypeArguments="x:Boolean" sap2010:WorkflowViewState.IdRef="CSharpValue`1_11">outputText.Contains("TOTAL,,,,EUR,,,10.01,,")</CSharpValue>
+          </InArgument>
+        </uta:VerifyExpression.Expression>
+      </uta:VerifyExpression>
+    </Sequence>
+  </Sequence>
+</Activity>

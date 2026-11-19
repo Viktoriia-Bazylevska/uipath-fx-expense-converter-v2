@@ -66,15 +66,19 @@ Convert the lines of an expense claim to one target currency (default EUR), usin
 
 **Rules**
 
-1. Dates are parsed only as `yyyy-MM-dd` (`DateTime.TryParseExact`, invariant culture). Amounts are parsed with invariant culture.
+1. Dates are parsed only as `yyyy-MM-dd` (`DateTime.TryParseExact`, invariant culture); a date after `DateTime.Today` is in the future. Amounts are parsed with invariant culture and `NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign` only, so a decimal comma such as `45,50` is an invalid amount, never 4550.
 2. A line is `Failed` when: Amount is not a number or ≤ 0; Currency is not 3 letters; date invalid or in the future; or `GetExchangeRate` returns `out_Success = False` (Message = its `out_ErrorMessage`). A failed line never stops the run.
 3. Currency = target → rate 1, no lookup.
 4. Cache lookups (also failed ones) in a dictionary keyed by currency + date: each pair is looked up once.
 5. Money is `decimal`, never `double`. `ConvertedAmount = Math.Round(Amount * Rate, 2, MidpointRounding.AwayFromZero)`.
 6. `TOTAL` = sum of the rounded converted lines only.
 7. The output file is overwritten on each run (Info log). The output folder is created if missing.
-8. A missing or malformed input file (wrong header) stops the run with a clear error.
+8. A missing input file stops the run with `FileNotFoundException` naming the path; a wrong header stops it with `InvalidDataException` naming the missing column. A file with a header and no lines completes with `TOTAL` 0.00 and a Warning "No expense lines".
 9. The job succeeds even when some lines fail; the failed lines are reported in the output and in a Warning summary log. This is a deliberate decision.
+10. Output formats, all with invariant culture: `RateDate` as `yyyy-MM-dd`; `ConvertedAmount` and `TOTAL` with 2 decimals; `Rate` as returned. A failed line has empty `Rate`, `RateDate` and `ConvertedAmount`; a converted line has an empty `Message`.
+11. `TOTAL` row: `LineId` = `TOTAL`, `Currency` = target currency, `ConvertedAmount` = the total; all other fields empty.
+12. Logging: `ConvertExpenseClaim.cs` logs start, a Warning per failed line, the Warning summary and the end with counts (read, converted, failed, lookups, total). `Main.xaml` logs only a short start and end.
+13. Structure: `Execute()` stays short and delegates per-line processing and the cached rate lookup to small private methods. Validation, conversion and totals live in `ExpenseCalculator`; CSV reading and writing (quoted fields, commas inside descriptions) in `ExpenseCsv`.
 
 ## 6. Conventions (all files)
 

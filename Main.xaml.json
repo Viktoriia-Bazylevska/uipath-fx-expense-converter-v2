@@ -1,0 +1,45 @@
+{
+  "DisplayName": "Main",
+  "Tooltip": null,
+  "HelpLink": null,
+  "Color": null,
+  "OriginalIconFileName": null,
+  "Arguments": [
+    {
+      "Name": "in_InputPath",
+      "DisplayName": "in_InputPath",
+      "Category": null,
+      "Tooltip": "Input CSV path. The default points to the design-specified expense input file.",
+      "Placeholder": "Data/Input/expenses.csv",
+      "Widget": null,
+      "IsRequired": false,
+      "IsPrincipal": true,
+      "ArgumentType": 0,
+      "DataSourceItems": null
+    },
+    {
+      "Name": "in_OutputPath",
+      "DisplayName": "in_OutputPath",
+      "Category": null,
+      "Tooltip": "Output CSV path. The default points to the design-specified converted expense output file.",
+      "Placeholder": "Data/Output/expenses_converted.csv",
+      "Widget": null,
+      "IsRequired": false,
+      "IsPrincipal": true,
+      "ArgumentType": 0,
+      "DataSourceItems": null
+    },
+    {
+      "Name": "in_TargetCurrency",
+      "DisplayName": "in_TargetCurrency",
+      "Category": null,
+      "Tooltip": "Target currency code used for conversion. The default is EUR.",
+      "Placeholder": "EUR",
+      "Widget": null,
+      "IsRequired": false,
+      "IsPrincipal": true,
+      "ArgumentType": 0,
+      "DataSourceItems": null
+    }
+  ]
+}

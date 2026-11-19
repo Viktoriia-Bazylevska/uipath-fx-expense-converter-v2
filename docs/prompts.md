@@ -69,7 +69,7 @@ List: the activities in order with their display names, the variables, the packa
 ## 5.2 Build, analyze, test
 
 ```text
-The plan is approved. First, if UiPath.WebAPI.Activities 2.5.2 (docs/solution-design.md section 2) is missing from project.json, add it with that pinned version and restore the packages. Then build GetExchangeRate.xaml in this project, and after that:
+The plan is approved. First, if UiPath.WebAPI.Activities 2.5.2 (docs/solution-design.md section 2) is missing from project.json, add it with that pinned version and restore the packages. Then build GetExchangeRate.xaml in this project. Group consecutive Assign activities into one Multiple Assign with a clear display name (for example "Initialize outputs", "Normalize and validate inputs") instead of a separate Assign per variable. After that:
 1. Add an annotation to EVERY activity (including Sequence, Try Catch, Retry Scope, Assign, If and Log Message), 1-2 lines on what it does and why, plus a description on every argument. Then list every activity display name with its annotation, so I can check that none is missing.
 2. Run Workflow Analyzer and fix every error and warning (ST-USG-034 may stay).
 3. Run the workflow once for each of the 7 GetExchangeRate test cases in docs/solution-design.md section 8.
@@ -108,9 +108,13 @@ Do not create any other files.
 ## 8.1 Plan the process part (new chat, send 5.0 first)
 
 ```text
-Plan the process part exactly as in docs/solution-design.md sections 3, 5 and 6: Main.xaml (entry point with the default arguments), ConvertExpenseClaim.cs, ExpenseLine.cs, ExpenseCalculator.cs and ExpenseCsv.cs.
-Get rates only through the GetExchangeRate activity from the library installed in Step 7 (<package name>), using the C# call confirmed in Step 7. Do not add a local copy of GetExchangeRate and do not call the API directly. Do not create anything yet.
-Show the files, classes and methods, the order of work, and every assumption you are making.
+Plan the process part exactly as in docs/solution-design.md sections 3, 5 and 6: Main.xaml (entry point with the default arguments), ConvertExpenseClaim.cs, ExpenseLine.cs, ExpenseCalculator.cs and ExpenseCsv.cs. Do not create anything yet.
+Get rates only through the GetExchangeRate activity from the library installed in Step 7 (<package name>), using the C# call confirmed in Step 7. No local copy of GetExchangeRate and no direct API call.
+Show me:
+1. The files, classes and methods, and the order of work.
+2. How each rule in section 5 (rules 1-13) is implemented, one line per rule.
+3. How the edge cases E1-E6 in section 8 will behave.
+4. Every remaining assumption, marked [DEFAULT] or [SME REVIEW]. Do not invent rules that are not in the design; ask instead.
 ```
 
 ## 8.2 Build and run
