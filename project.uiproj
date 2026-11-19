@@ -1,0 +1,6 @@
+{
+  "Name": "ExpenseClaimConverter",
+  "ProjectType": "Process",
+  "Description": "ExpenseClaimConverter",
+  "MainFile": "Main.xaml"
+}

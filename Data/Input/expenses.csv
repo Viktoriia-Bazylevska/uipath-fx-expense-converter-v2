@@ -1,0 +1,9 @@
+LineId,ExpenseDate,Description,Amount,Currency
+1,2026-11-03,Taxi airport to hotel,45.50,USD
+2,2026-11-03,Hotel 2 nights,320.00,GBP
+3,2026-11-07,Team dinner (Saturday),180.25,USD
+4,2026-11-04,Train ticket,62.00,EUR
+5,2026-11-05,Conference fee,1200,PLN
+6,2026-11-05,Bad currency test,10.00,XYZ
+7,2026-11-05,Negative amount test,-5.00,USD
+8,2099-01-01,Future date test,15.00,USD
