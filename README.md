@@ -24,7 +24,7 @@ expenses.csv → Main.xaml → ConvertExpenseClaim.cs → GetExchangeRate (FX.Ra
 ## Requirements
 
 - UiPath Studio 26.10 or later (Windows project, C# expressions)
-- The **FX.Rates** library package installed from the Orchestrator tenant feed
+- The **FX.Rates** library package (FX.Rates.Library.v2, version 1.0.3 or later) installed from the Orchestrator tenant feed. Library code: [Fx.Rate-UiPath-Library-v2](https://github.com/Viktoriia-Bazylevska/Fx.Rate-UiPath-Library-v2)
 - Internet access to `api.frankfurter.dev`. No API key is needed.
 
 ## How to run
@@ -40,6 +40,8 @@ expenses.csv → Main.xaml → ConvertExpenseClaim.cs → GetExchangeRate (FX.Ra
 | `in_TargetCurrency` | `EUR` |
 
 4. Open `Data/Output/expenses_converted.csv`.
+
+**Run outside Studio:** publish with Studio's **Publish** button to your Personal Workspace (Orchestrator creates the process automatically), then start **ExpenseClaimConverter** from UiPath Assistant. Expected: 5 converted, 3 failed, TOTAL 919.91 EUR.
 
 ## Input and output
 

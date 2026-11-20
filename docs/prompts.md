@@ -14,12 +14,13 @@ How they are written: the skill is named on the first line, one task per chat, t
 | 6.1 | 1 | Review (read-only) |
 | 6.2 | 1 | Targeted fix, only if needed |
 | 7.1 | 2 | Switch to the library |
+| 7.2 | 2 | Clean up the library project (library chat) |
 | 8.1 | 2 | Plan the process part |
 | 8.2 | 2 | Build and run |
 | 8.3 | 2 | Tests |
 | 9.1 | 2 | Whole-project review (read-only) |
 | 9.2 | 2 | Bug hunt with edge cases (no changes) |
-| 9.3 | 2 | Fix the bugs one at a time |
+| 9.3 | 2 | Fix the bugs you chose, one at a time |
 
 ## 4.1 Initial commit and push (Step 4)
 
@@ -33,7 +34,7 @@ Branch: main
    - If it is not a repository: run git init and create the branch main.
    - If origin is missing: add origin with the repository URL above.
    - If origin exists but points to a different URL: stop and tell me; do not change it.
-2. Make sure .gitignore contains these lines, and add any that are missing: .local/, .objects/, .screenshots/, *.nupkg, Data/Output/, CLAUDE.md, .tmh/
+2. Make sure .gitignore contains these lines, and add any that are missing: .local/, .objects/, .screenshots/, *.nupkg, Data/Output/, CLAUDE.md, .tmh/, .storage/, test-data/edge-cases/results/
 3. Stage all files. Check that no Data/Output/ files, .nupkg packages, credentials, tokens or tenant URLs are staged. The author name in docs/ is intended; keep it. If anything else looks wrong, stop and tell me before committing.
 4. If the checks are clean: commit with exactly this message: "Initial project structure".
 5. Push to origin main and set it as the upstream branch. After the push, check the result with git status and git log origin/main -1. Report the push as successful only if origin/main shows the new commit; otherwise (for example, sign-in is needed or the remote is not empty) stop and show me the error.
@@ -46,7 +47,7 @@ Branch: main
 Commit and push the current changes in one go. This message is my OK, as long as the check below passes.
 1. Stage all changes. Check that no Data/Output/ files, .nupkg packages, credentials, tokens or tenant URLs are staged. If any are, stop and tell me before committing.
 2. Commit with exactly this message: "<message>".
-3. Push to origin main. After the push, check the result with git status and git log origin/main -1. Report the push as successful only if origin/main shows the new commit; otherwise stop and show me the error.
+3. Push to the configured remote (check with git remote -v; do not add or rename remotes). After the push, check the result with git status and git log <remote>/<branch> -1. Report the push as successful only if it shows the new commit; otherwise stop and show me the error.
 4. Show me the list of committed files, the commit hash and the result of the push.
 ```
 
@@ -105,6 +106,25 @@ The library <package name> <version> has been exported, published and installed 
 Do not create any other files.
 ```
 
+## 7.2 Clean up the library project (in the library project, new chat)
+
+First delete the copied `Data/` and `docs/` files in the library folder and add `FX.Rates/README.md` and `FX.Rates/AGENTS.md` from this kit. After the prompt, publish the next version from Studio and update it in the process project.
+
+```text
+Use the uipath-rpa skill. Read AGENTS.md first. This is the <package name> library project; its public contract is GetExchangeRate.xaml and the Arguments and Behaviour sections of README.md. Do not change arguments, behaviour or messages.
+Clean up the project settings only:
+1. In project.json, set "main" to GetExchangeRate.xaml.
+2. Confirm that no workflow or code file uses UiPath.Excel.Activities, UiPath.Mail.Activities, UiPath.UIAutomation.Activities, UiPath.Testing.Activities or UiPath.CodedWorkflows. Remove those that are unused, including stale assembly references in the XAML. Keep UiPath.System.Activities and UiPath.WebAPI.Activities. If Studio needs one of the others, keep it and tell me why. This message is my OK for this package change only.
+3. Set requiresUserInteraction to false.
+4. Validate GetExchangeRate.xaml and build. If Studio cannot reload the project, stop and tell me; I will reopen it.
+5. Run GetExchangeRate.xaml three times with input arguments and show the outputs:
+   - USD to EUR, 2026-11-03: Success True, Rate 0.89367
+   - EUR to EUR, 2026-11-03: Success True, Rate 1, no API call
+   - XYZ to EUR, 2026-11-03: Success False, "Currency or date not supported"
+6. Show the final dependencies in project.json and a table: change, result.
+Do not publish and do not run Git.
+```
+
 ## 8.1 Plan the process part (new chat, send 5.0 first)
 
 ```text
@@ -144,14 +164,65 @@ Review the whole project against docs/solution-design.md: security, error handli
 ## 9.2 Bug hunt (no changes yet)
 
 ```text
-Use the uipath-rpa skill.
-Look for bugs without changing any workflow or code yet. Create the 6 edge-case input files from docs/solution-design.md section 8 ("Edge cases") under test-data/edge-cases/, then run Main.xaml once per file, passing its path as in_InputPath.
-For each case show: expected (from the design), actual result, log lines, and OK or BUG. Then list every bug with its cause and a proposed fix. Do not fix anything yet.
+Use the uipath-rpa skill. Look for bugs without changing any workflow or code.
+1. Create the input files for edge cases E1–E5 from docs/solution-design.md section 8 under test-data/edge-cases/. For E6 do not create a file: pass a path that does not exist.
+2. Run Main.xaml once per case, passing the path as in_InputPath. Save run output only under test-data/edge-cases/results/ (Git ignores it).
+3. For each case show: expected (from the design), actual result, key log lines, and OK or BUG. Judge by the output file and the logs: "Execution aborted" (ST-ANA-003, ST-ANA-009) on a completed run is not a failure.
+4. Check the packages in project.json against the design's package list.
+5. List every bug with its cause, its file and a proposed fix. Do not fix anything yet.
 ```
 
-## 9.3 Fix the bugs
+Before 9.3: compare each bug with the design, decide fix or accept, and write the decision in docs/build-log.md.
+
+## 9.3 Fix the bugs you chose (fill in the placeholders)
 
 ```text
-Fix the bugs you listed, one at a time. After each fix, re-run its edge case and the original sample: the sample must still give 5 converted, 3 failed, TOTAL 919.91 EUR.
-Where a bug can be tested without the API, add a check for it to ConvertExpenseClaimTests.cs and run the test case. Show a final table: bug, fix, edge case result, sample result.
+Use the uipath-rpa skill. Fix only the bugs below, one at a time. Do not change docs/ or AGENTS.md.
+1. <file>: <the bug> — <the behaviour you want, with the exact message>.
+2. <file>: <the bug> — <the behaviour you want>.
+Do not fix: <the bug> — I accept it as a known limitation.
+After each fix, validate the changed files and build. Where a bug can be tested without the API, add a check for it to ConvertExpenseClaimTests.cs.
+Then run E1–E6, ConvertExpenseClaimTests, WorkflowCoverageTests and the original sample (must still give 5 converted, 3 failed, TOTAL 919.91 EUR). Show a final table: bug, fix, edge-case result, sample result.
+```
+
+If Studio could not reload the project, reopen it and send:
+
+```text
+I reopened the project in Studio. Continue from where you stopped: validate the changed files, build, then run E1–E6, ConvertExpenseClaimTests, WorkflowCoverageTests and the original sample. Show the final table.
+```
+
+## Appendix: publish to Orchestrator with Autopilot (tested, optional)
+
+Tested once: it worked first time (version 1.0.2 to Personal Workspace, process created automatically) but took about 14 minutes and 2 prompts; Studio's **Publish** button takes about 3 minutes. `AGENTS.md` keeps "Do not publish"; these prompts give the OK for one version only. Start a new chat with Prompt 5.0 first. On a tenant without an unattended robot, skip the job and run the process from UiPath Assistant.
+
+### P.1 Preflight and publish plan (no changes)
+
+```text
+Use the uipath-rpa skill for packing and publishing, and the uipath-platform skill for everything in Orchestrator (folders, packages, libraries, processes, jobs). If a step fails, use the uipath-troubleshoot skill to find the cause.
+
+This is a one-time test of publishing this project to Orchestrator. AGENTS.md says "Do not publish": for this task only, publishing is allowed after my OK in Part B. Do not change any workflow, code file, docs/, AGENTS.md or Git. Do not write tenant names, URLs, IDs or user names into any project file.
+
+Part A: preflight, read-only. Do not pack, publish or start anything yet.
+1. Check that the uip CLI is signed in to Orchestrator. Show only the tenant name, not URLs or IDs.
+2. Find my Personal Workspace folder, and tell me whether it has a robot (machine and user) available to run an unattended or attended job.
+3. Check that the library this project depends on (FX.Rates.Library.v2, the version in project.json) exists in the tenant library feed. If the version in project.json is not in the feed, stop and tell me.
+4. Check project.json: name, version, project type (process), entry point Main.xaml, and the dependencies. Confirm that only the packages from the design are listed.
+5. Check that Data/Input/expenses.csv will be inside the package, and explain where Main.xaml will read the input and write the output when it runs as a job (the paths are relative to the project folder).
+6. Validate and build the project, and check that the Workflow Analyzer shows 0 errors.
+7. Propose: the package version (the next free one), where to publish it (Personal Workspace or tenant feed, and why), the process name, and the job to run (Main.xaml with its default arguments).
+Then stop and wait for my OK.
+```
+
+### P.2 Publish (after checking Part A)
+
+```text
+Before Part B, one check, read-only: list the existing versions of ExpenseClaimConverter in my Personal Workspace feed with their publish dates, and tell me whether a process with that name already exists in Personal Workspace and which package version it uses. Then continue with Part B only if no existing process would be changed; otherwise stop and tell me.
+
+OK for Part B with these changes. This message is my OK to publish this one package version.
+1. Pack and publish version <next free version> to my Personal Workspace feed. Show the package name, version and destination.
+2. Check whether the upload created or updated a process automatically. Create the process only if none exists. Do not change other processes.
+3. Start one job of Main.xaml with its default arguments on the available Development runtime. If the job is refused, or stays Pending for more than 2 minutes, stop the job so nothing is left in the queue, and report it. Then stop: I will run the process myself from UiPath Assistant. Do not try other robots, machines, licences or folder settings.
+4. If the job runs: show the job state, the job logs (start, the Warning summary, the end line with counts and total) and the total. Expected: 5 converted, 3 failed, TOTAL 919.91 EUR.
+5. If any step fails, stop at that step. Show the exact error, use uipath-troubleshoot to explain the cause, and propose a fix. Accept permission errors (403) as a known limitation; do not try to work around them.
+6. Finish with a table: step, command or action, result, and time taken.
 ```

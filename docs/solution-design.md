@@ -17,7 +17,7 @@ Convert the lines of an expense claim to one target currency (default EUR), usin
 | Compatibility | Windows |
 | Expression language | C# |
 | API | `https://api.frankfurter.dev/v2/rates` (GET, public, no authentication) |
-| Packages | `UiPath.System.Activities`, `UiPath.WebAPI.Activities` 2.5.2, `UiPath.Testing.Activities`, plus what Studio adds for coded workflows (`UiPath.CodedWorkflows`); Autopilot adds and pins them. FX.Rates is installed by the developer. No other packages without asking |
+| Packages | `UiPath.System.Activities`, `UiPath.WebAPI.Activities` 2.5.2, `UiPath.Testing.Activities`, plus what Studio adds for coded workflows (`UiPath.CodedWorkflows`); Autopilot adds and pins them. FX.Rates is installed by the developer. No other packages without asking; remove the ones Studio's project template adds (Excel, Mail, UIAutomation) once nothing uses them |
 | Orchestrator | Not used at runtime: no assets, queues or credentials |
 
 ## 3. Components
@@ -73,7 +73,7 @@ Convert the lines of an expense claim to one target currency (default EUR), usin
 5. Money is `decimal`, never `double`. `ConvertedAmount = Math.Round(Amount * Rate, 2, MidpointRounding.AwayFromZero)`.
 6. `TOTAL` = sum of the rounded converted lines only.
 7. The output file is overwritten on each run (Info log). The output folder is created if missing.
-8. A missing input file stops the run with `FileNotFoundException` naming the path; a wrong header stops it with `InvalidDataException` naming the missing column. A file with a header and no lines completes with `TOTAL` 0.00 and a Warning "No expense lines".
+8. A missing input file stops the run with `FileNotFoundException` naming the path; a wrong header stops it with `InvalidDataException` naming the missing column. A file with a header and no lines completes with `TOTAL` 0.00 and a Warning "No expense lines". A data line whose number of fields differs from the header is `Failed` "Invalid line: expected 5 fields, found N" (Amount, Currency, Rate, RateDate and ConvertedAmount empty); the run continues.
 9. The job succeeds even when some lines fail; the failed lines are reported in the output and in a Warning summary log. This is a deliberate decision.
 10. Output formats, all with invariant culture: `RateDate` as `yyyy-MM-dd`; `ConvertedAmount` and `TOTAL` with 2 decimals; `Rate` as returned. A failed line has empty `Rate`, `RateDate` and `ConvertedAmount`; a converted line has an empty `Message`.
 11. `TOTAL` row: `LineId` = `TOTAL`, `Currency` = target currency, `ConvertedAmount` = the total; all other fields empty.
@@ -120,9 +120,9 @@ These dates are in the past, so the ECB rates are fixed and the results repeat o
 | E1 | Header only, no lines | Run completes, TOTAL 0.00, Warning "No expense lines" |
 | E2 | Wrong header | Run stops with a clear error naming the missing column |
 | E3 | Description with a comma in quotes: `"Dinner, client"` | Line parsed correctly and Converted |
-| E4 | Amount with a decimal comma: `45,50` | Line Failed "Invalid amount" (never read as 4550) |
+| E4 | Amount with a decimal comma, quoted: `"45,50"` (unquoted `45,50` is a sixth field) | Quoted: Failed "Invalid amount"; unquoted: Failed "Invalid line: expected 5 fields, found 6"; never 4550 |
 | E5 | Lower-case currency: `usd` | Converted, same as `USD` |
-| E6 | Input file missing | Run stops with a clear error naming the path |
+| E6 | Input file missing (pass a path that does not exist; no file) | Run stops with a clear error naming the path |
 
 **Coded test:** rounding 10.005 → 10.01 and 2.344 → 2.34; same currency gives rate 1; negative amount, bad currency and future date rejected; TOTAL sums converted lines only.
 
