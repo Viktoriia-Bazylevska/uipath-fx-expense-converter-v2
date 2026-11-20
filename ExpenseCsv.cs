@@ -37,6 +37,7 @@ namespace ExpenseClaimConverter
                 }
             }
 
+            int expectedFieldCount = header.Count;
             List<ExpenseLine> expenses = [];
             for (int lineIndex = 1; lineIndex < sourceLines.Length; lineIndex++)
             {
@@ -45,9 +46,19 @@ namespace ExpenseClaimConverter
                     continue;
                 }
                 List<string> fields = ParseCsvLine(sourceLines[lineIndex]);
-                if (fields.Count < RequiredColumns.Length)
+                if (fields.Count != expectedFieldCount)
                 {
-                    throw new InvalidDataException("Input line " + (lineIndex + 1).ToString() + " has fewer than five required columns.");
+                    expenses.Add(new ExpenseLine
+                    {
+                        LineId = fields.Count > 0 ? fields[0] : string.Empty,
+                        ExpenseDateText = fields.Count > 1 ? fields[1] : string.Empty,
+                        Description = fields.Count > 2 ? fields[2] : string.Empty,
+                        AmountText = string.Empty,
+                        Currency = string.Empty,
+                        Status = "Failed",
+                        Message = "Invalid line: expected " + expectedFieldCount + " fields, found " + fields.Count
+                    });
+                    continue;
                 }
                 expenses.Add(new ExpenseLine
                 {

@@ -61,6 +61,12 @@ namespace ExpenseClaimConverter
         /// <summary>Processes one line and keeps line-level business failures non-fatal.</summary>
         private void ProcessLine(ExpenseLine line, string targetCurrency, Dictionary<string, RateLookup> rateCache, ref int rateLookupCount)
         {
+            if (string.Equals(line.Status, "Failed", StringComparison.Ordinal) && !string.IsNullOrEmpty(line.Message))
+            {
+                FailLine(line, line.Message);
+                return;
+            }
+
             line.Status = "Failed";
             line.Message = string.Empty;
             if (!ExpenseCalculator.TryParseAmount(line.AmountText, out decimal amount, out string amountError))

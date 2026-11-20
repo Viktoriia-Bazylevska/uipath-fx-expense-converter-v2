@@ -8,6 +8,8 @@
 .screenshots/
 *.nupkg
 Data/Output/
+.storage/
+test-data/edge-cases/results/
 CLAUDE.md
 .tmh/
 ################################################################################
