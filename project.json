@@ -4,7 +4,7 @@
   "description": "ExpenseClaimConverter",
   "main": "Main.xaml",
   "dependencies": {
-    "FX.Rates.Library.v2": "[1.0.2]",
+    "FX.Rates.Library.v2": "[1.0.3]",
     "UiPath.CodedWorkflows": "[24.10.3]",
     "UiPath.System.Activities": "[26.10.0]",
     "UiPath.Testing.Activities": "[25.10.3]",
@@ -48,16 +48,14 @@
         "testCaseId": "e359e75c-b6b5-4293-9436-38fc78615ef6",
         "testCaseType": "TestCase",
         "executionTemplateInvokeIsolated": false,
-        "fileName": "ConvertExpenseClaimTests.cs",
-        "publishAsTestCase": true
+        "fileName": "ConvertExpenseClaimTests.cs"
       },
       {
         "editingStatus": "InProgress",
         "testCaseId": "8127424e-33ec-44b1-a2b8-8e616f1e01c7",
         "testCaseType": "TestCase",
         "executionTemplateInvokeIsolated": false,
-        "fileName": "WorkflowCoverageTests.xaml",
-        "publishAsTestCase": true
+        "fileName": "WorkflowCoverageTests.xaml"
       }
     ],
     "saveToCloud": false
